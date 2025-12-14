@@ -20,14 +20,14 @@ export default function WelcomePage() {
 
         {/* Main Heading */}
         <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold mb-6 text-balance">
-          <span className="gradient-text">Welcome!</span>
+          <span className="gradient-text">The Ultimate AI</span>
           <br />
-          <span className="text-white">The Legal AI Assistant</span>
+          <span className="text-white">Assistant</span>
         </h1>
 
         {/* Subheading */}
         <p className="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl mx-auto text-balance leading-relaxed">
-          Experience next-generation AI conversations powered by advanced  legal language  search models. Intelligent, fast, and built
+          Experience next-generation AI conversations powered by advanced language models. Intelligent, fast, and built
           for the future.
         </p>
 

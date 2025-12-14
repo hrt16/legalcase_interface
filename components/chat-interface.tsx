@@ -12,7 +12,7 @@ import {
   SidebarTrigger,
   SidebarFooter,
 } from "@/components/ui/sidebar"
-import { PlusCircle, Send, Menu, Sparkles, MessageSquare, Settings, LogOut, Clock } from "lucide-react"
+import { PlusCircle, Send, Menu, Sparkles, MessageSquare, Settings, LogOut, Clock, Loader2 } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,6 +45,7 @@ export function ChatInterface() {
     },
   ])
   const [inputValue, setInputValue] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
   const [chats, setChats] = useState<Chat[]>([
     {
       id: "1",
@@ -66,8 +67,8 @@ export function ChatInterface() {
     },
   ])
 
-  const handleSend = () => {
-    if (!inputValue.trim()) return
+  const handleSend = async () => {
+    if (!inputValue.trim() || isLoading) return
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -78,18 +79,74 @@ export function ChatInterface() {
 
     setMessages((prev) => [...prev, userMessage])
     setInputValue("")
+    setIsLoading(true)
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content:
-          "I understand your question.Im on progress by Hrit & Gauri.",
-        timestamp: new Date(),
+    try {
+      const apiMessages = [...messages, userMessage].map((msg) => ({
+        role: msg.role,
+        parts: [{ type: "text" as const, text: msg.content }],
+      }))
+
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: apiMessages }),
+      })
+
+      if (!response.ok) throw new Error("Failed to get response")
+
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+
+      let aiMessageContent = ""
+      const aiMessageId = (Date.now() + 1).toString()
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: aiMessageId,
+          role: "assistant",
+          content: "",
+          timestamp: new Date(),
+        },
+      ])
+
+      while (reader) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value)
+        const lines = chunk.split("\n")
+
+        for (const line of lines) {
+          if (line.startsWith("0:")) {
+            try {
+              const jsonStr = line.substring(2)
+              const parsed = JSON.parse(jsonStr)
+              if (parsed) {
+                aiMessageContent += parsed
+                setMessages((prev) =>
+                  prev.map((msg) => (msg.id === aiMessageId ? { ...msg, content: aiMessageContent } : msg)),
+                )
+              }
+            } catch (e) {}
+          }
+        }
       }
-      setMessages((prev) => [...prev, aiMessage])
-    }, 1000)
+    } catch (error) {
+      console.error("[v0] Error sending message:", error)
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: "Sorry, I encountered an error. Please try again.",
+          timestamp: new Date(),
+        },
+      ])
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleNewChat = () => {
@@ -150,11 +207,11 @@ export function ChatInterface() {
               <DropdownMenuTrigger asChild>
                 <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-red-950/30 transition-colors">
                   <Avatar className="w-9 h-9 border-2 border-red-900/50">
-                    <AvatarFallback className="bg-gradient-to-br from-red-600 to-red-900 text-white">GN</AvatarFallback>
+                    <AvatarFallback className="bg-gradient-to-br from-red-600 to-red-900 text-white">JD</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 text-left">
-                    <p className="text-sm font-medium text-white">Gauri Negi</p>
-                    <p className="text-xs text-gray-500">gbearistoocute@gmail.com</p>
+                    <p className="text-sm font-medium text-white">John Doe</p>
+                    <p className="text-xs text-gray-500">john@example.com</p>
                   </div>
                   <Menu className="w-4 h-4 text-gray-500" />
                 </button>
@@ -181,7 +238,7 @@ export function ChatInterface() {
             <SidebarTrigger className="lg:hidden text-white" />
             <div className="flex-1">
               <h1 className="text-xl font-semibold gradient-text">New Conversation</h1>
-              <p className="text-sm text-gray-500">Legal Case AI</p>
+              <p className="text-sm text-gray-500">Powered by advanced AI</p>
             </div>
           </header>
 
@@ -219,11 +276,23 @@ export function ChatInterface() {
 
                 {message.role === "user" && (
                   <Avatar className="w-10 h-10 border-2 border-red-900/50 flex-shrink-0">
-                    <AvatarFallback className="bg-gradient-to-br from-red-600 to-red-900 text-white">GN</AvatarFallback>
+                    <AvatarFallback className="bg-gradient-to-br from-red-600 to-red-900 text-white">JD</AvatarFallback>
                   </Avatar>
                 )}
               </div>
             ))}
+            {isLoading && (
+              <div className="flex gap-4 justify-start">
+                <Avatar className="w-10 h-10 border-2 border-red-900/50 flex-shrink-0">
+                  <AvatarFallback className="bg-gradient-to-br from-red-600 to-red-900">
+                    <Sparkles className="w-5 h-5 text-white" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="max-w-2xl rounded-2xl p-4 bg-gradient-to-br from-red-950/30 to-black border border-red-900/30">
+                  <Loader2 className="w-5 h-5 text-red-500 animate-spin" />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Input Area */}
@@ -233,16 +302,18 @@ export function ChatInterface() {
                 <Input
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
                   placeholder="Type your message..."
-                  className="flex-1 bg-red-950/20 border-red-900/30 text-white placeholder:text-gray-500 pr-12 py-6 text-base rounded-xl focus-visible:ring-red-900"
+                  disabled={isLoading}
+                  className="flex-1 bg-red-950/20 border-red-900/30 text-white placeholder:text-gray-500 pr-12 py-6 text-base rounded-xl focus-visible:ring-red-900 disabled:opacity-50"
                 />
                 <Button
                   onClick={handleSend}
                   size="icon"
-                  className="absolute right-2 bg-gradient-to-br from-red-600 to-red-900 hover:from-red-700 hover:to-red-950 text-white w-10 h-10 rounded-lg"
+                  disabled={isLoading}
+                  className="absolute right-2 bg-gradient-to-br from-red-600 to-red-900 hover:from-red-700 hover:to-red-950 text-white w-10 h-10 rounded-lg disabled:opacity-50"
                 >
-                  <Send className="w-5 h-5" />
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                 </Button>
               </div>
               <p className="text-xs text-gray-600 mt-3 text-center">

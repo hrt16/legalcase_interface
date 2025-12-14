@@ -8,8 +8,8 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Leagl AI - Your Virtual Legal Advisor",
-  description: "Experience next-generation AI conversations powered by legal language search models",
+  title: "AI Chat - Your Intelligent Assistant",
+  description: "Experience next-generation AI conversations powered by advanced language models",
   generator: "v0.app",
   icons: {
     icon: [
