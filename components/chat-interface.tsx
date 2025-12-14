@@ -150,7 +150,7 @@ export function ChatInterface() {
               <DropdownMenuTrigger asChild>
                 <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-red-950/30 transition-colors">
                   <Avatar className="w-9 h-9 border-2 border-red-900/50">
-                    <AvatarFallback className="bg-gradient-to-br from-red-600 to-red-900 text-white">JD</AvatarFallback>
+                    <AvatarFallback className="bg-gradient-to-br from-red-600 to-red-900 text-white">GN</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 text-left">
                     <p className="text-sm font-medium text-white">Gauri Negi</p>
@@ -181,7 +181,7 @@ export function ChatInterface() {
             <SidebarTrigger className="lg:hidden text-white" />
             <div className="flex-1">
               <h1 className="text-xl font-semibold gradient-text">New Conversation</h1>
-              <p className="text-sm text-gray-500">Powered by advanced AI</p>
+              <p className="text-sm text-gray-500">Legal Case AI</p>
             </div>
           </header>
 
@@ -219,7 +219,7 @@ export function ChatInterface() {
 
                 {message.role === "user" && (
                   <Avatar className="w-10 h-10 border-2 border-red-900/50 flex-shrink-0">
-                    <AvatarFallback className="bg-gradient-to-br from-red-600 to-red-900 text-white">JD</AvatarFallback>
+                    <AvatarFallback className="bg-gradient-to-br from-red-600 to-red-900 text-white">GN</AvatarFallback>
                   </Avatar>
                 )}
               </div>
