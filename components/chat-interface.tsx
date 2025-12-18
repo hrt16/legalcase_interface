@@ -207,11 +207,11 @@ export function ChatInterface() {
               <DropdownMenuTrigger asChild>
                 <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-red-950/30 transition-colors">
                   <Avatar className="w-9 h-9 border-2 border-red-900/50">
-                    <AvatarFallback className="bg-gradient-to-br from-red-600 to-red-900 text-white">JD</AvatarFallback>
+                    <AvatarFallback className="bg-gradient-to-br from-red-600 to-red-900 text-white">GN</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 text-left">
-                    <p className="text-sm font-medium text-white">John Doe</p>
-                    <p className="text-xs text-gray-500">john@example.com</p>
+                    <p className="text-sm font-medium text-white">Gauri Negi</p>
+                    <p className="text-xs text-gray-500">gbearistoocute@gmail.com</p>
                   </div>
                   <Menu className="w-4 h-4 text-gray-500" />
                 </button>
